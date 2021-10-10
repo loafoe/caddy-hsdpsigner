@@ -1,8 +1,8 @@
 package hsdpsigner
 
 import (
-        "fmt"
-        "net/http"
+	"fmt"
+	"net/http"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
@@ -13,7 +13,7 @@ import (
 
 func init() {
 	caddy.RegisterModule(Middleware{})
-	httpcaddyfile.RegisterHandlerDirective("hsdp", parseCaddyfile)
+	httpcaddyfile.RegisterHandlerDirective("hsdpsigner", parseCaddyfile)
 }
 
 type Middleware struct {
@@ -55,8 +55,19 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 // UnmarshalCaddyfile implements caddyfile.Unmarshaler.
 func (m *Middleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	for d.Next() {
-		if !d.Args(&m.SharedKey, &m.SecretKey) {
+		args := d.RemainingArgs()
+		if len(args) > 0 {
 			return d.ArgErr()
+		}
+		for d.NextBlock(0) {
+			switch d.Val() {
+			case "shared_key":
+				m.SharedKey = d.Token().Text
+			case "secret_key":
+				m.SecretKey = d.Token().Text
+			default:
+				return d.Errf("unrecognized subdirective %q", d.Val())
+			}
 		}
 	}
 	return nil
