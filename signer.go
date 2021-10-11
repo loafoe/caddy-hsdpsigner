@@ -55,19 +55,8 @@ func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddy
 // UnmarshalCaddyfile implements caddyfile.Unmarshaler.
 func (m *Middleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	for d.Next() {
-		args := d.RemainingArgs()
-		if len(args) > 0 {
+		if !d.Args(&m.SharedKey, &m.SecretKey) {
 			return d.ArgErr()
-		}
-		for d.NextBlock(0) {
-			switch d.Val() {
-			case "shared_key":
-				m.SharedKey = d.Token().Text
-			case "secret_key":
-				m.SecretKey = d.Token().Text
-			default:
-				return d.Errf("unrecognized subdirective %q", d.Val())
-			}
 		}
 	}
 	return nil
