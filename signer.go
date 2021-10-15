@@ -48,7 +48,10 @@ func (m *Middleware) Validate() error {
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
-	m.s.SignRequest(r)
+	err := m.s.SignRequest(r)
+	if err != nil {
+		return err
+	}
 	return next.ServeHTTP(w, r)
 }
 
