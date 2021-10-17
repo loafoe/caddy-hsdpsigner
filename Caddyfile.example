@@ -1,0 +1,12 @@
+{
+	order hsdpsigner first
+}
+
+:8080 {
+	hsdpsigner aaaa bbbbb
+
+	reverse_proxy https://go-hello-world.eu-west.philips-healthsuite.com {
+		header_up Host {upstream_hostport}
+		header_up X-Forwarded-Host {host}
+	}
+}
