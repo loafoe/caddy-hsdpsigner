@@ -37,5 +37,3 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: loafoe/caddy-hsdpverifier,docker.na1.hsdp.io/loafoe/caddy-hsdpverifier
-          cache-from: type=registry,ref=loafoe/caddy-hsdpverifier:buildcache
-          cache-to: type=inline
