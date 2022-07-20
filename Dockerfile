@@ -7,7 +7,7 @@ RUN go mod download
 # Build
 COPY . .
 RUN go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
-RUN /go/bin/xcaddy build --with github.com/loafoe/hsdpsigner
+RUN /go/bin/xcaddy build --with github.com/loafoe/hsdpsigner --with github.com/mholt/caddy-ratelimit
 
 
 FROM alpine:latest
