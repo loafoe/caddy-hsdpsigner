@@ -3,7 +3,7 @@ module github.com/loafoe/hsdpsigner
 go 1.18
 
 require (
-	github.com/caddyserver/caddy/v2 v2.5.3-0.20220717053349-8bdee04651d9
+	github.com/caddyserver/caddy/v2 v2.5.2
 	github.com/philips-software/go-hsdp-signer v1.4.0
 )
 
@@ -110,5 +110,3 @@ require (
 	gopkg.in/tomb.v1 v1.0.0-20141024135613-dd632973f1e7 // indirect
 	howett.net/plist v1.0.0 // indirect
 )
-
-//replace github.com/lucas-clemente/quic-go => github.com/lucas-clemente/quic-go v0.27.0
