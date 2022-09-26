@@ -3,7 +3,7 @@ module github.com/loafoe/hsdpsigner
 go 1.18
 
 require (
-	github.com/caddyserver/caddy/v2 v2.6.0
+	github.com/caddyserver/caddy/v2 v2.6.1
 	github.com/philips-software/go-hsdp-signer v1.4.0
 )
 
