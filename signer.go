@@ -34,7 +34,7 @@ func (Middleware) CaddyModule() caddy.ModuleInfo {
 // Provision implements caddy.Provisioner.
 func (m *Middleware) Provision(ctx caddy.Context) error {
 	var err error
-	m.s, err = signer.New(m.SharedKey, m.SecretKey)
+	m.s, err = signer.New(m.SharedKey, m.SecretKey, signer.SignMethod(), signer.SignParam())
 	return err
 }
 
