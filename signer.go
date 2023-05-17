@@ -12,7 +12,7 @@ import (
 )
 
 func init() {
-	caddy.RegisterModule(Middleware{})
+	caddy.RegisterModule(&Middleware{})
 	httpcaddyfile.RegisterHandlerDirective("hsdpsigner", parseCaddyfile)
 }
 
@@ -24,7 +24,7 @@ type Middleware struct {
 }
 
 // CaddyModule returns the Caddy module information.
-func (Middleware) CaddyModule() caddy.ModuleInfo {
+func (m *Middleware) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
 		ID:  "http.handlers.hsdpsigner",
 		New: func() caddy.Module { return new(Middleware) },
@@ -34,7 +34,10 @@ func (Middleware) CaddyModule() caddy.ModuleInfo {
 // Provision implements caddy.Provisioner.
 func (m *Middleware) Provision(ctx caddy.Context) error {
 	var err error
-	m.s, err = signer.New(m.SharedKey, m.SecretKey, signer.SignMethod(), signer.SignParam())
+	m.s, err = signer.New(m.SharedKey, m.SecretKey,
+		signer.SignMethod(),
+		signer.SignParam(),
+		signer.SignHeaders("X-Client-Common-Name", "X-Client-Certificate-Der-Base64"))
 	return err
 }
 
@@ -47,7 +50,7 @@ func (m *Middleware) Validate() error {
 }
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
-func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
+func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	err := m.s.SignRequest(r)
 	if err != nil {
 		return err
@@ -67,7 +70,7 @@ func (m *Middleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 
 // parseCaddyfile unmarshals tokens from h into a new Middleware.
 func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
-	var m Middleware
+	m := &Middleware{}
 	err := m.UnmarshalCaddyfile(h.Dispenser)
 	return m, err
 }
