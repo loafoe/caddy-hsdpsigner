@@ -5,8 +5,14 @@
 :8080 {
 	hsdpsigner aaaa bbbbb
 
+	tls /caddy/config/server.terrakube.com.crt.pem /caddy/config/server.terrakube.com.key.pem {
+		client_auth {
+			mode require_and_verify
+			#trusted_ca_cert_file /caddy/config/ca-chain.cert.pem
+		}
+	}
+
 	reverse_proxy https://go-hello-world.eu-west.philips-healthsuite.com {
 		header_up Host {upstream_hostport}
-		header_up X-Forwarded-Host {host}
 	}
 }
