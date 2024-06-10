@@ -36,4 +36,4 @@ jobs:
           file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: loafoe/caddy-hsdpverifier,docker.na1.hsdp.io/loafoe/caddy-hsdpverifier
+          tags: loafoe/caddy-hsdpverifier,docker.na1.hsdp.io/loafoe/caddy-hsdpverifier,docker.na1.hsdp.io/alcon-dhs-docker-registry/caddy-hsdpverifier
