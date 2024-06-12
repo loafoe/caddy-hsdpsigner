@@ -1,3 +1,5 @@
 .idea/
 caddy
 Caddyfile
+.secrets
+.env
