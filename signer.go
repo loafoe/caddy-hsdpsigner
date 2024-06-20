@@ -35,8 +35,6 @@ func (m *Middleware) CaddyModule() caddy.ModuleInfo {
 func (m *Middleware) Provision(ctx caddy.Context) error {
 	var err error
 	m.s, err = signer.New(m.SharedKey, m.SecretKey,
-		signer.SignMethod(),
-		signer.SignParam(),
 		signer.SignHeaders("X-Client-Common-Name", "X-Client-Certificate-Der-Base64"))
 	return err
 }
