@@ -1,6 +1,8 @@
 package hsdpsigner
 
 import (
+	"crypto/x509"
+	"encoding/base64"
 	"fmt"
 	"net/http"
 
@@ -49,11 +51,21 @@ func (m *Middleware) Validate() error {
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
+	// Inject TLS headers
+	if r.TLS != nil && r.TLS.PeerCertificates != nil && len(r.TLS.PeerCertificates) > 0 {
+		r.Header.Set("X-Client-Common-Name", r.TLS.PeerCertificates[0].Subject.CommonName)
+		r.Header.Set("X-Client-Certificate-Der-Base64", certToDERBase64(r.TLS.PeerCertificates[0]))
+	}
 	err := m.s.SignRequest(r)
 	if err != nil {
 		return err
 	}
 	return next.ServeHTTP(w, r)
+}
+
+func certToDERBase64(certificate *x509.Certificate) string {
+	// Cert to DER Base64
+	return base64.StdEncoding.EncodeToString(certificate.Raw)
 }
 
 // UnmarshalCaddyfile implements caddyfile.Unmarshaler.
