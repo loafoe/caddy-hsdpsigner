@@ -70,7 +70,7 @@ func TestMiddleware_CaddyModule(t *testing.T) {
 		BasicConstraintsValid: true,
 	}
 
-	// Create a self-signed certificate. For a real client certificate, use a CA to sign it
+	// Create a self-signed certificate
 	certBytes, err := x509.CreateCertificate(rand.Reader, &certTemplate, &certTemplate, &privateKey.PublicKey, privateKey)
 	if err != nil {
 		t.Fatalf("Failed to create self-signed certificate: %v", err)
@@ -85,7 +85,7 @@ func TestMiddleware_CaddyModule(t *testing.T) {
 	caCertPool := x509.NewCertPool()
 	caCertPool.AddCert(ts.Certificate())
 
-	// Create a client that accepts any certificate; for testing purposes only
+	// Create a client that accepts any certificate
 	client := &http.Client{
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{
