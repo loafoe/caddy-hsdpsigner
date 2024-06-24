@@ -22,6 +22,7 @@ type nilHandler struct {
 func (n *nilHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) error {
 	w.Header().Set("X-Client-Common-Name", r.Header.Get("X-Client-Common-Name"))
 	w.Header().Set("X-Client-Certificate-Der-Base64", r.Header.Get("X-Client-Certificate-Der-Base64"))
+	w.Header().Set("X-Caddy-Plugin-Revision", r.Header.Get("X-Caddy-Plugin-Revision"))
 	return nil
 }
 
@@ -31,6 +32,7 @@ func TestMiddleware_CaddyModule(t *testing.T) {
 
 	m.SharedKey = "shared_key"
 	m.SecretKey = "secret_key"
+	m.revision = "test-revision"
 	m.s, err = signer.New(m.SharedKey, m.SecretKey,
 		signer.SignHeaders("X-Client-Common-Name", "X-Client-Certificate-Der-Base64"))
 	if err != nil {
@@ -107,6 +109,7 @@ func TestMiddleware_CaddyModule(t *testing.T) {
 
 	assert.Equal(t, "Test Common Name", resp.Header.Get("X-Client-Common-Name"))
 	assert.NotEqual(t, "", resp.Header.Get("X-Client-Certificate-Der-Base64"))
+	assert.NotEmpty(t, resp.Header.Get("X-Caddy-Plugin-Revision"))
 
 	// Read the response body
 	_, err = io.ReadAll(resp.Body)

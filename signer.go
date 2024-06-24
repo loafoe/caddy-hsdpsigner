@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"runtime/debug"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
@@ -23,6 +24,9 @@ type Middleware struct {
 	SecretKey string `json:"secret_key,omitempty"`
 
 	s *signer.Signer
+
+	settings []debug.BuildSetting
+	revision string
 }
 
 // CaddyModule returns the Caddy module information.
@@ -36,6 +40,16 @@ func (m *Middleware) CaddyModule() caddy.ModuleInfo {
 // Provision implements caddy.Provisioner.
 func (m *Middleware) Provision(ctx caddy.Context) error {
 	var err error
+
+	info, ok := debug.ReadBuildInfo()
+	if ok {
+		m.settings = info.Settings
+		for _, kv := range info.Settings {
+			if kv.Key == "vcs.revision" {
+				m.revision = kv.Value
+			}
+		}
+	}
 	m.s, err = signer.New(m.SharedKey, m.SecretKey,
 		signer.SignHeaders("X-Client-Common-Name", "X-Client-Certificate-Der-Base64"))
 	return err
@@ -51,6 +65,7 @@ func (m *Middleware) Validate() error {
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
 func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
+	r.Header.Set("X-Caddy-Plugin-Revision", m.revision)
 	// Inject TLS headers
 	if r.TLS != nil && r.TLS.PeerCertificates != nil && len(r.TLS.PeerCertificates) > 0 {
 		r.Header.Set("X-Client-Common-Name", r.TLS.PeerCertificates[0].Subject.CommonName)
