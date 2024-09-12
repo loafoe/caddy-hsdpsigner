@@ -32,6 +32,8 @@ jobs:
       - name: Set output
         id: vars
         run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      - name: Inject tag into Dockerfile
+        run: sed -i "s|{{TAG}}|${{ steps.vars.outputs.tag }}|g" Dockerfile
       -
         name: Build and push
         id: docker_build
