@@ -15,7 +15,7 @@ import (
 )
 
 func init() {
-	caddy.RegisterModule(&Middleware{})
+	caddy.RegisterModule(Middleware{})
 	httpcaddyfile.RegisterHandlerDirective("hsdpsigner", parseCaddyfile)
 }
 
@@ -30,7 +30,7 @@ type Middleware struct {
 }
 
 // CaddyModule returns the Caddy module information.
-func (m *Middleware) CaddyModule() caddy.ModuleInfo {
+func (Middleware) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
 		ID:  "http.handlers.hsdpsigner",
 		New: func() caddy.Module { return new(Middleware) },
@@ -50,13 +50,12 @@ func (m *Middleware) Provision(ctx caddy.Context) error {
 			}
 		}
 	}
-	m.s, err = signer.New(m.SharedKey, m.SecretKey,
-		signer.SignHeaders("X-Client-Common-Name", "X-Client-Certificate-Der-Base64"))
+	m.s, err = signer.New(m.SharedKey, m.SecretKey, signer.SignMethod(), signer.SignParam())
 	return err
 }
 
 // Validate implements caddy.Validator.
-func (m *Middleware) Validate() error {
+func (m Middleware) Validate() error {
 	if m.s == nil {
 		return fmt.Errorf("no signer")
 	}
@@ -64,7 +63,7 @@ func (m *Middleware) Validate() error {
 }
 
 // ServeHTTP implements caddyhttp.MiddlewareHandler.
-func (m *Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
+func (m Middleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	r.Header.Set("X-Caddy-Plugin-Revision", m.revision)
 	// Inject TLS headers
 	if r.TLS != nil && r.TLS.PeerCertificates != nil && len(r.TLS.PeerCertificates) > 0 {
@@ -95,7 +94,7 @@ func (m *Middleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 
 // parseCaddyfile unmarshals tokens from h into a new Middleware.
 func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
-	m := &Middleware{}
+	var m Middleware
 	err := m.UnmarshalCaddyfile(h.Dispenser)
 	return m, err
 }
